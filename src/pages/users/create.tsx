@@ -24,16 +24,21 @@ export default function CreateUser() {
             >
                 <Sidebar />
 
-                <Box flex="1" padding="8" borderRadius="8" bgColor="gray.800">
+                <Box
+                    flex="1"
+                    padding={['6', '8']}
+                    borderRadius="8"
+                    bgColor="gray.800"
+                >
                     <Heading fontSize="lg" fontWeight="normal">
                         Criar usuário
                     </Heading>
 
                     <Divider marginY="6" borderColor="gray.600" />
 
-                    <Stack spacing="8">
+                    <Stack spacing={['6', '8']}>
                         <SimpleGrid
-                            spacing="8"
+                            spacing={['6', '8']}
                             width="100%"
                             minChildWidth="240px"
                         >
@@ -42,7 +47,7 @@ export default function CreateUser() {
                         </SimpleGrid>
 
                         <SimpleGrid
-                            spacing="8"
+                            spacing={['6', '8']}
                             width="100%"
                             minChildWidth="240px"
                         >
