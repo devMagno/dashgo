@@ -1,14 +1,24 @@
-import { createServer, Factory, Model } from 'miragejs'
+import {
+    createServer,
+    Factory,
+    Model,
+    ActiveModelSerializer,
+    Response,
+} from 'miragejs'
 import { faker } from '@faker-js/faker'
 
 type User = {
     name: string
     email: string
-    created_at: string
+    createdAt: string
 }
 
-export function makeServer() {
+function makeServer() {
     const server = createServer({
+        serializers: {
+            application: ActiveModelSerializer,
+        },
+
         models: {
             user: Model.extend<Partial<User>>({}),
         },
@@ -19,7 +29,7 @@ export function makeServer() {
                     return `User ${i + 1}`
                 },
                 email() {
-                    return faker.internet.email().toLowerCase()
+                    return faker.internet.email().toLocaleLowerCase()
                 },
                 createdAt() {
                     return faker.date.recent(10)
@@ -28,15 +38,39 @@ export function makeServer() {
         },
 
         seeds(server) {
-            server.createList('user', 10)
+            server.createList('user', 200)
         },
 
         routes() {
             this.namespace = 'api'
             this.timing = 750
 
-            this.get('/users')
-            this.post('users')
+            this.get('/users', function (schema, request) {
+                const { page = 1, per_page = 10 } = request.queryParams
+
+                const pageAsNumber = Number(page)
+                const perPageAsNumber = Number(per_page)
+
+                const total = schema.all('user').length
+
+                const pageStart = (pageAsNumber - 1) * perPageAsNumber
+                const pageEnd = pageStart + perPageAsNumber
+
+                const users = this.serialize(schema.all('user')).users.slice(
+                    pageStart,
+                    pageEnd
+                )
+
+                return new Response(
+                    200,
+                    { 'x-total-count': String(total) },
+                    { users }
+                )
+            })
+
+            this.get('/users/:id')
+
+            this.post('/users')
 
             this.namespace = ''
             this.passthrough()
@@ -45,3 +79,5 @@ export function makeServer() {
 
     return server
 }
+
+export { makeServer }
